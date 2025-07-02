@@ -17,7 +17,6 @@ out:.
     └── jobpipline.yaml
 ```
 
-
 #### kubernetes集群外执行:
 
 ```
@@ -38,31 +37,39 @@ tar -zxf jobpipline-1.0.0.tar.gz
 │   └── jobpipline-1.0.0.tar
 ```
 
-
 #### 上传镜像
 
+```
 docker load -i images/jobpipline-1.0.0.tar
+```
 
-安装
+#### 安装
 
+```
 helm install jobpipline charts/jobpipline-1.0.0.tgz
+```
 
-卸载
+#### 卸载
 
+```
 helm list
-
 helm uninstall jobpipline -n default
+```
 
 
-案例任务执行过程：
+## 案例任务执行过程：
 
+```
 kubectl  get pod | grep job
 job-a-xfbd4                               0/1     Completed   0              84s
 job-b-t57rz                               0/1     Completed   0              119s
 job-c-f4c9s                               0/1     Completed   0              2m39s
 job-d-tnf8d                               0/1     Completed   0              2m34s
 jobpipline-job-xpnmx                      1/1     Running     0              3m11s
+```
 
+
+```
 kubectl logs -f jobpipline-job-xpnmx
 任务执行顺序:
 job-c → job-d → job-b → job-a
@@ -102,3 +109,4 @@ job-c → job-d → job-b → job-a
 2025/07/02 03:51:59 job job-d 已删除
 2025/07/02 03:51:59 job job-b 已删除
 2025/07/02 03:51:59 job job-a 已删除
+```
