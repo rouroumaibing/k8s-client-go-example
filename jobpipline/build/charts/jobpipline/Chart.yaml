@@ -1,0 +1,4 @@
+apiVersion: v1
+name: jobpipline
+version: 1.0.0
+description: job pipline

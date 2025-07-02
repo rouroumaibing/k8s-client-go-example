@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "jobpipline.fullname" . }}-job
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "jobpipline.labels" . | nindent 4 }}
+  annotations:
+    description: {{ .Values.job.description | quote }}
+spec:
+  completions: {{ .Values.job.completions }}
+  parallelism: {{ .Values.job.parallelism }}
+  activeDeadlineSeconds: {{ .Values.job.activeDeadlineSeconds }}
+  completionMode: {{ .Values.job.completionMode }}
+  template:
+    metadata:
+      name: {{ include "jobpipline.fullname" . }}-pod
+      labels:
+        {{- include "jobpipline.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "jobpipline.serviceAccountName" . }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: {{ .Values.job.restartPolicy }}
+      {{- with .Values.job.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.job.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.job.command }}
+          command: {{ $.Values.job.command | toJson }}
+          args: {{ $.Values.job.args | toJson  }}
+          {{- end }}
+          {{- with .Values.job.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.job.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.job.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.job.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

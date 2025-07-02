@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipline
+  namespace: default
+data:
+  jobs.yaml: |
+    cleanuptime: 5
+    namespace: default
+    image: busybox:latest
+    completions: 1
+    parallelism: 1
+    activeDeadlineSeconds: 3600
+    imagePullSecrets:
+        - name: default-secret
+    restartPolicy: OnFailure
+    dnsConfig:
+      options:
+        - name: single-request-reopen
+    completionMode: NonIndexed
+    jobs:
+      job-a:
+        depends_on:
+          - job-b
+      job-b:
+        depends_on:
+          - job-c
+          - job-d
+      job-c:
+        depends_on: []
+      job-d:
+        depends_on: []
+  job-a.yaml: |
+    command:
+      - sh
+      - -c
+      - ls
+    image: nginx:perl
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 1
+        memory: 2Gi
+  job-b.yaml: |
+    # volumes:
+    # - name: storage-pvc
+    #   persistentVolumeClaim:
+    #     claimName: storage-pvc
+    # volumeMounts:
+    # - name: storage-pvc
+    #   mountPath: "/tmp"
+    #   readOnly: true
+  job-c.yaml: |
+    command:
+      - sh
+      - -c
+      - ls -l
+  job-d.yaml: |
+    command:
+      - sh
+      - -c
+      - ls -l
