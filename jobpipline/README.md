@@ -4,6 +4,17 @@
 
 基于kubernetes  client-go库实现相互依赖job任务编排
 
+#### 关键技术点：
+
+```
+1.基于client-go, 在集群内部调用serviceaccount的token创建集群资源
+2.基于client-go, 在集群外调用~/.kube/config创建集群资源
+3.数据结构选择邻接表。
+3.1 通过邻接表实现job的任务依赖关系
+3.2 通过Kahn拓扑排序算法拓扑排序，实现job的执行顺序
+3.3 通过判断依赖是否闭环，判断job的任务依赖死循环
+```
+
 ## 代码构建：
 
 ```
@@ -56,7 +67,6 @@ helm list
 helm uninstall jobpipline -n default
 ```
 
-
 ## 案例任务执行过程：
 
 ```
@@ -67,7 +77,6 @@ job-c-f4c9s                               0/1     Completed   0              2m3
 job-d-tnf8d                               0/1     Completed   0              2m34s
 jobpipline-job-xpnmx                      1/1     Running     0              3m11s
 ```
-
 
 ```
 kubectl logs -f jobpipline-job-xpnmx
